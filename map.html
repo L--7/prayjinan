@@ -3646,6 +3646,7 @@ var geoCoordMap = {
 '无影山新村三区':[116.988778,36.693554]
 };
 
+
 var convertData = function (data) {
     var res = [];
     for (var i = 0; i < data.length; i++) {
@@ -3660,18 +3661,62 @@ var convertData = function (data) {
     return res;
 };
 
+var diagnosisDetail = [
+  {name: '济南市长清区乐天小区9号楼', value: 1},
+  {name: '济南市槐荫区泉城花园小区38号楼', value: 1},
+  {name: '济南市槐荫区舜承苑西区4号楼', value: 1},
+  {name: '济南市槐荫区锦绣兰庭12号楼', value: 1},
+  {name: '济南市中区二七南路20号楼', value: 1},
+  {name: '济南市中区中海国际c2区', value: 1},
+  {name: '济南市历下区趵突泉小区一区1号楼', value: 1},
+  {name: '济南市省立医院宿舍', value: 1},
+  {name: '济南市槐荫区经五路283号', value: 1},
+  {name: '济南市市中区领秀城', value: 1},
+  {name: '济南市历城区田庄', value: 1},
+  {name: '济南市市中区阳光舜城小区', value: 1},
+  {name: '济南市高新区黄金时代小区', value: 1}
+];
+var geoDiagnosisMap = {
+    '济南市长清区乐天小区9号楼':[116.786991,36.559895],
+'济南市槐荫区泉城花园小区38号楼':[116.949359,36.684229],
+'济南市槐荫区舜承苑西区4号楼':[116.954142,36.654438],
+'济南市槐荫区锦绣兰庭12号楼':[116.918698,36.684791],
+'济南市中区中海国际c2区':[116.363638,39.937481],
+'济南市中区二七南路20号楼':[116.210793,39.933971],
+'济南市历下区趵突泉小区一区1号楼':[117.024397,36.664897],
+'济南市槐荫区经五路283号':[116.984697,36.662908],
+'济南市省立医院宿舍':[116.530311,39.860351],
+'济南市历城区田庄':[117.11679,36.784731],
+'济南市市中区领秀城':[117.176834,36.975631],
+'济南市市中区阳光舜城小区':[117.033027,36.617011],
+'济南市高新区黄金时代小区':[117.136975,36.675665]
+    }
+var convertDiagnosisData = function (data) {
+    var res = [];
+    for (var i = 0; i < data.length; i++) {
+        var geoCoord = geoDiagnosisMap[data[i].name];
+        if (geoCoord) {
+            res.push({
+                name: data[i].name.substr(3,7),
+                value: geoCoord.concat(data[i].value)
+            });
+        }
+    }
+    return res;
+};
 option = {
     title: {
-        text: '仅火车方式，武汉回济人员分布-数据已脱敏',
+        text: '武汉回济(仅火车方式)和确诊人员分布-数据已脱敏',
         subtext: '位置数据存在一定误差，请大家注意安全。如有问题请在 https://github.com/L--7/prayjinan 发起issues',
-        left: 'left'
+        left: 'left',
+        top: '10'
     },
     tooltip : {
         trigger: 'item'
     },
     bmap: {
         center: [117.0176630800, 36.6659481200],
-        zoom: 10,
+        zoom: 12,
         roam: true,
         mapStyle: {
             styleJson: [{
@@ -3773,16 +3818,23 @@ option = {
             }]
         }
     },
+    legend: {
+        data: ['武汉回济', '确诊'],
+        left: '10',
+        top:'10%',
+        orient:'vertical'
+
+    },
     series : [
         {
-            name: 'pm2.5',
+            name: '武汉回济',
             type: 'scatter',
             coordinateSystem: 'bmap',
-            data: convertData(data),
-            symbolSize: function (val) {
-                return val[2] / 10;
-            },
-            label: {
+            data: convertData(data.sort(function (a, b) {
+                return b.value - a.value;
+            }).slice(0, 2000)),
+            symbolSize: 5,
+            slabel: {
                 formatter: '{b}',
                 position: 'right',
                 show: false
@@ -3797,13 +3849,11 @@ option = {
             }
         },
         {
-            name: 'Top 5',
+            name: '确诊',
             type: 'effectScatter',
             coordinateSystem: 'bmap',
-            data: convertData(data.sort(function (a, b) {
-                return b.value - a.value;
-            }).slice(0, 2000)),
-            symbolSize: 1,
+            data: convertDiagnosisData(diagnosisDetail),
+            symbolSize: 10,
             showEffectOn: 'render',
             rippleEffect: {
                 brushType: 'stroke'
@@ -3815,7 +3865,7 @@ option = {
                 show: true
             },
             itemStyle: {
-                color: 'purple',
+                color: 'red',
                 shadowBlur: 10,
                 shadowColor: '#333'
             },
