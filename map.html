@@ -3830,11 +3830,9 @@ option = {
             name: '武汉回济',
             type: 'scatter',
             coordinateSystem: 'bmap',
-            data: convertData(data.sort(function (a, b) {
-                return b.value - a.value;
-            }).slice(0, 2000)),
+            data: convertData(data),
             symbolSize: 5,
-            slabel: {
+            label: {
                 formatter: '{b}',
                 position: 'right',
                 show: false
